@@ -1,60 +1,84 @@
-const tabela = document.querySelector('[data-tabela]');
 
-const criaNovaLinha = (nome, email) => {
-    const linhaNovoCliente = document.createElemente('tr');
+//GET
+ const listaClientes = () => {
 
-    const conteudo = `<td class="td" data-td>${nome}</td>
-                      <td>${email}</td>
-                        <td>
-                            <ul class="tabela__botoes-controle">
-                                <li><a href="../telas/edita_cliente.html" class="botao-simples botao-simples--editar">Editar</a></li>
-                                <li><button class="botao-simples botao-simples--excluir" type="button">Excluir</button></li>
-                            </ul>
-                     </td>`;
-
-    linhaNovoCliente.innerHTML = conteudo;
-
-    return linhaNovoCliente;
-}
-
-const listaClientes = () => {
-
-    /*Promise :  Um Promise (de "promessa") representa um valor que pode estar disponível agora, 
-    no futuro ou nunca. ... */
-    const promise = new Promise((resolve, reject) => {
-        const http = new XMLHttpRequest();
-
-        http.open('GET', 'http://localhost:3000/profile');
-
-        //execulta quando o html é carregado
-        http.onload = () => {
-            if (http.status >= 400) {
-
-                //Se der erro passo pelo reject
-                reject(JSON.parse(http.response));
-
-            }
-            else {
-
-                // se der certo passo pelo resolve
-                resolve(JSON.parse(http.response));
-
-            }
-
-            http.send();
-        }
-    })
-
-    console.log(promise);
-    return promise;
+    //Por padrão a Fecth API já realiza um get e devolve uma promise
+    return fetch(`http://localhost:3000/profile`)
+           .then(resposta => {
+               return resposta.json()
+            });
 };
 
-listaClientes()
-.then(data => {
-    //A cada retorno da promise execulta esta funcao
-    data.forEach(elemento => {
-        tabela.appendChild(criaNovaLinha(elemento.nome, elemento.email));
-    });})//resolve
-.catch(error => {
-    
-})//reject
+//POST
+const criarCliente = (nome,email) => {
+    return fetch(`http://localhost:3000/profile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+            nome: nome,
+            email: email
+        })
+    })
+    .then(resposta => {
+        return resposta.body
+     })
+     .finally(() =>{
+         console.log('Adicionado')
+     });
+}
+
+//GET
+const detalhaCliente = (id) => {
+
+    //Seleciona Cliente
+    return fetch(`http://localhost:3000/profile/${id}`)
+           .then(resposta => {
+               return resposta.json()
+            }).finally(() =>{
+               console.log('selecionado')
+            });
+};
+
+//DELETE
+const deletarCliente = (id) =>{
+    return fetch(`http://localhost:3000/profile/${id}`, {
+        method: 'DELETE'
+    })
+    .then(resposta => {
+        return resposta.body
+     })
+     .finally(() =>{
+         console.log('Deletado')
+     });
+}
+
+
+//PUT
+const atualizaCliente = (id,nome,email) =>{
+    return fetch(`http://localhost:3000/profile/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+            nome: nome,
+            email: email
+        })
+    })
+    .then(resposta => {
+        return resposta.body
+     })
+     .finally(() =>{
+         console.log('Editado')
+     });
+}
+
+export const clienteService = {
+    listaClientes,
+    criarCliente,
+    deletarCliente,
+    atualizaCliente,
+    detalhaCliente
+}
