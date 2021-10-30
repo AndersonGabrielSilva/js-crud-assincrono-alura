@@ -31,11 +31,16 @@ tabela.addEventListener('click', async (evento) => {
 })
 
 const render = async () => {
-    const clientes = await clienteService.listaClientes()
+   try  {
+       const clientes = await clienteService.listaClientes()
+   
+       clientes.forEach(elemento => {
+           tabela.appendChild(criaNovaLinha(elemento.nome, elemento.email, elemento.id));
+       });
 
-    clientes.forEach(elemento => {
-        tabela.appendChild(criaNovaLinha(elemento.nome, elemento.email, elemento.id));
-    });
+   }catch(erro){
+    window.location.href = '../telas/erro.html'
+   }
 }
 
 render();
