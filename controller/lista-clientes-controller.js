@@ -1,4 +1,4 @@
-import {clienteService}  from '../service/cliente-service.js'
+import { clienteService } from '../service/cliente-service.js'
 const criaNovaLinha = (nome, email, id) => {
     const linhaNovoCliente = document.createElemente('tr');
 
@@ -17,22 +17,25 @@ const criaNovaLinha = (nome, email, id) => {
 }
 
 const tabela = document.querySelector('[data-tabela]');
-tabela.addEventListener('click',(evento) =>{
+tabela.addEventListener('click', async (evento) => {
     let ehBotaoDeletar = evento.target.className === 'botao-simples botao-simples--excluir'
-    if(ehBotaoDeletar){
+    if (ehBotaoDeletar) {
         //Pega o data-id mais proximo da minha <td>
         const linhaCliente = evento.target.closest('data-id')
         let id = linhaCliente.dataset.id;
-        clienteService.deletarCliente(id)
-        .then(() =>{
-            linhaCliente.remove()
-        });
+
+        await clienteService.deletarCliente(id)
+
+        linhaCliente.remove()
     }
 })
 
-clienteService.listaClientes()
-.then(data => {
-    //A cada retorno da promise execulta esta funcao
-    data.forEach(elemento => {
-        tabela.appendChild(criaNovaLinha(elemento.nome, elemento.email,elemento.id));
-    });})
+const render = async () => {
+    const clientes = await clienteService.listaClientes()
+
+    clientes.forEach(elemento => {
+        tabela.appendChild(criaNovaLinha(elemento.nome, elemento.email, elemento.id));
+    });
+}
+
+render();
